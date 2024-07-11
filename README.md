@@ -3,7 +3,5 @@
 <!--
 **davidtonyc/davidtonyc** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
-Here are some ideas to get you started:
-
-- 🔭 I’m currently working on my personal portfolio to showcase my skills 
+- Hello, here is an SQL file I have created to shows what I can do in SQL and the commands I can work with. This mini project was based off data from a film rental database. I have also attached the database file in this repository.
 -->
