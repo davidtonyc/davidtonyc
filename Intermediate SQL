@@ -1,0 +1,70 @@
+-- PRACTISING AROUND WITH EMPLOYEE DATA
+
+--PULL ALL DATA IN THE TABLE
+SELECT * FROM Alex_the_Analyst.EmployeeDemographics;
+
+
+-- ADDED DATA INTO A SPECIFIC EMPLOYEE FIELD
+UPDATE Alex_the_Analyst.EmployeeDemographics
+SET Gender = 'M'
+WHERE Employee_id = 1012
+;
+
+
+-- PULL THE EMPLOYEE WITH THE SECOND HIGHEST SALARY
+WITH sub AS ( SELECT o.Employee_id, o.First_name, o.Last_name, o.age, o.gender, t.Position, t.Salary
+FROM Alex_the_Analyst.EmployeeDemographics AS o 
+LEFT OUTER JOIN Alex_the_Analyst.EmployeeSalary AS t
+	ON o.Employee_id = t.Employee_id
+    
+UNION 
+
+SELECT t.Employee_id, o.First_name, o.Last_name, o.age, o.gender, t.Position, t.Salary
+FROM Alex_the_Analyst.EmployeeDemographics AS o 
+RIGHT OUTER JOIN Alex_the_Analyst.EmployeeSalary AS t
+	ON o.Employee_id = t.Employee_id
+    )
+SELECT *
+FROM sub
+ORDER BY salary DESC
+LIMIT 1 OFFSET 1;
+
+
+-- AVERAGE SALARY OF STAFF IN SALES POSITIONS
+SELECT ROUND(AVG(t.Salary)) AS average
+FROM Alex_the_Analyst.EmployeeDemographics AS o
+JOIN Alex_the_Analyst.EmployeeSalary AS t
+	ON o.Employee_id = t.Employee_id
+WHERE position LIKE 'Sale%'
+;
+
+
+-- USE OF UNION TO COMBINE 2 TABLES (UNION IS BETTER USED WHEN ALL COLUMNS HAVE MATCHING DATA TYPE)
+SELECT Employee_id, First_name, Last_name 
+FROM Alex_the_Analyst.EmployeeDemographics
+
+UNION 
+
+SELECT Employee_id, Position, salary  
+FROM Alex_the_Analyst.EmployeeSalary ;
+
+
+-- ADDED DATA INTO A EMPLOYEE SALARY TABLE
+INSERT INTO Alex_the_Analyst.EmployeeSalary (Employee_id, Position, Salary) 
+VALUES (1029, 'Salesman', 4500);
+
+
+
+-- GIVE EMPLOYEES A SALARY RAISE BASED ON ROLE
+WITH sub AS ( SELECT o.Employee_id, o.First_name, o.Last_name, o.age, o.gender, t.Position, t.Salary
+FROM Alex_the_Analyst.EmployeeDemographics AS o 
+JOIN Alex_the_Analyst.EmployeeSalary AS t
+	ON o.Employee_id = t.Employee_id
+			)
+SELECT *,
+		CASE
+			WHEN position = 'Assistant' THEN round((salary * 0.1) + salary)
+            WHEN position LIKE 'Sales%' THEN round((salary * 0.5) + salary)
+            ELSE salary END AS new_salary
+FROM sub
+;
