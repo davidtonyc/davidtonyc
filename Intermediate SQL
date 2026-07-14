@@ -30,6 +30,7 @@ ORDER BY salary DESC
 LIMIT 1 OFFSET 1;
 
 
+
 -- AVERAGE SALARY OF STAFF IN SALES POSITIONS
 SELECT ROUND(AVG(t.Salary)) AS average
 FROM Alex_the_Analyst.EmployeeDemographics AS o
@@ -68,3 +69,12 @@ SELECT *,
             ELSE salary END AS new_salary
 FROM sub
 ;
+
+-- TOTAL NUMBER OF STAFF PER GENDER
+SELECT Demo.Employee_id, Demo.First_name, Demo.Last_name, Demo.gender, Sal.Salary, COUNT(Demo.gender)
+	OVER(PARTITION BY Demo.gender) TotalGen
+FROM Alex_the_Analyst.EmployeeDemographics Demo 
+JOIN Alex_the_Analyst.EmployeeSalary Sal
+	ON Demo.Employee_id = Sal.Employee_id
+;
+
