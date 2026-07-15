@@ -1,0 +1,79 @@
+USE Alex_the_Analyst;
+
+
+SET SQL_SAFE_UPDATES = 0;
+
+
+UPDATE Alex_the_Analyst.EmployeeSalary
+SET Position = 'Manager'
+WHERE Position = 'Manager 2'
+;
+
+
+-- 1
+-- Write a query that displays every employee's First_name, Last_name, Position, 
+-- and a column named Position_Count that shows the total number of employees who hold that exact same job title.
+
+SELECT Demo.first_name, Demo.Last_name, Sal.Position, COUNT(Demo.employee_id)
+	OVER (PARTITION BY Sal.position) Position_Count
+FROM EmployeeDemographics Demo
+JOIN EmployeeSalary Sal
+	ON Demo.Employee_id = Sal.Employee_id
+; -- worked!
+
+
+
+-- 2
+-- Join your tables and show each employee's name, Gender, Salary, and the average salary
+-- of their respective gender group (labeled as Average_Salary_By_Gender).
+
+SELECT Demo.first_name, Demo.Last_name, Demo.Gender, Sal.Salary, ROUND(AVG(Sal.Salary) 
+OVER (PARTITION BY Demo.Gender)) Average_Salary_By_Gender
+FROM EmployeeDemographics Demo
+JOIN EmployeeSalary Sal
+	ON Demo.Employee_id = Sal.Employee_id
+; -- worked!
+
+
+
+-- 3
+-- Show each employee's name, Position, Salary, and a running total of the salary budget for that position, ordered by their Employee_id.
+
+SELECT Demo.first_name, Demo.Last_name, Sal.Position, Sal.Salary, Sal.Position, ROUND(SUM(Sal.Salary) 
+OVER (PARTITION BY Sal.Position ORDER BY Sal.Employee_id)) Running_total_Salary_By_Position
+FROM EmployeeDemographics Demo
+JOIN EmployeeSalary Sal
+	ON Demo.Employee_id = Sal.Employee_id
+; -- worked!
+
+
+
+-- 4
+-- Display each employee's name, Position, Salary, and a column named Salary_Variance which calculates how much 
+-- money above or below the average position salary that specific employee makes.
+
+SELECT Demo.first_name, Demo.Last_name, Sal.Position, Sal.Salary, Sal.Position, 
+						ROUND(AVG(Sal.Salary) OVER (PARTITION BY Sal.Position)) Avg_Salary_By_Position, 
+                        Sal.Salary - ROUND(AVG(Sal.Salary) OVER (PARTITION BY Sal.Position)) Salary_Variance
+						FROM EmployeeDemographics Demo
+						JOIN EmployeeSalary Sal
+							ON Demo.Employee_id = Sal.Employee_id
+; -- worked!
+
+
+
+-- 5
+-- Write a query that returns only the top 2 highest-paid employees for each gender. 
+-- Your final output should display their names, gender, salary, and their rank within their gender group.
+
+WITH sub AS ( SELECT Demo.first_name, Demo.Last_name, Sal.Position, Sal.Salary, Demo.Gender,
+						DENSE_RANK() OVER (PARTITION BY Gender ORDER BY Salary DESC) AS GenderRank
+						FROM EmployeeDemographics Demo
+						JOIN EmployeeSalary Sal
+							ON Demo.Employee_id = Sal.Employee_id
+						ORDER BY Sal.salary DESC
+            )
+SELECT first_name, Last_name, Position, Salary, Gender, GenderRank
+FROM sub
+WHERE GenderRank <= 2
+ORDER BY Gender, GenderRank;
